@@ -7,7 +7,6 @@ This plugin allows you to input a folder of drone images collected with a drone 
 Caveats:
 - Currently only working for DJI drones, but sensor dimensions have not be added for all sensors. You can manually specify sensor dimensions in the advanced options though.
 - This plugin assumes a flat earth, meaning footprints won't be accurate if they are collected on non-flat terrain. The more sophisticated repo from spifftek70 allows you to warp footprints with a terrain model for images on undulating terrain and also georeference individual images: https://github.com/spifftek70/Drone-Footprints
-- The code will attempt to read 
 
 ---
 
