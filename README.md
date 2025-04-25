@@ -38,7 +38,7 @@ The footprints are exported to geojson files in the output folder, with each foo
 
 For fun, you can use the temporal controller in QGIS to visualise how the images were collected in real time.
 
-
+---
 
 ### How it works
 
