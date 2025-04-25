@@ -14,6 +14,9 @@ Caveats:
 
 To install the plugin, download the .zip file of the repo and install it through the QGIS plugin manager. It has several depencies which should be installed when the plugin is loaded for the first time. A copy of the Phil Harvey ExifTool is included within the plugin to handle image metadata extraction.
 
+Once installed, it should show up in the plugins and be visible in the toolbar with the symbol:
+
+![](images/plugin_install.PNG)
 
 ---
 
