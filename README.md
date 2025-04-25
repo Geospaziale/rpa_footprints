@@ -2,10 +2,10 @@
 
 #### Simple QGIS plugin to generate footprint polygons from drone images.
 
-This plugin allows you to input a folder of drone images collection with Remotely Piloted Aircraft (RPA) and and estimate the approximate footprint area of each image based upon the metadata contained in the EXIF tags of each image. A footprint is essentially a polygon representing the approximate area sampled by an image on the ground. The Phil Harvey ExifTool is used in this plugin to extract EXIF tags for images: https://github.com/exiftool/exiftool. 
+This plugin allows you to input a folder of drone images collected with a drone or Remotely Piloted Aircraft (RPA) and estimate the approximate footprint area of each image based upon the metadata contained in the EXIF tags of each image. A footprint is essentially a polygon representing the approximate area sampled by an image on the ground. The Phil Harvey ExifTool is used in this plugin to extract EXIF tags for images: https://github.com/exiftool/exiftool. 
 
 Caveats:
-- Currently only working for DJI drones, but sensor dimensions
+- Currently only working for DJI drones, but sensor dimensions have not be added for all sensors. You can manually specify sensor dimensions in the advanced options though.
 - This plugin assumes a flat earth, meaning footprints won't be accurate if they are collected on non-flat terrain. The more sophisticated repo from spifftek70 allows you to warp footprints with a terrain model for images on undulating terrain: https://github.com/spifftek70/Drone-Footprints
 - The code will attempt to read 
 
