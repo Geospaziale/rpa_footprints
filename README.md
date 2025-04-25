@@ -17,7 +17,6 @@ To install the plugin, download the .zip file of the repo and install it through
 
 
 ---
----
 
 ## Usage
 
