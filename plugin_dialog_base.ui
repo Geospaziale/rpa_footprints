@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MyPluginDialog</class>
+ <widget class="QDialog" name="MyPluginDialog">
+  <property name="windowTitle">
+   <string>My Plugin</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+
+   <!-- Input Folder -->
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelInputFolder">
+       <property name="text">
+        <string>Input Folder:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="inputFolderLayout">
+       <item>
+        <widget class="QLineEdit" name="inputFolderLine"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnInputFolder">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+
+     <!-- Output Folder -->
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelOutputFolder">
+       <property name="text">
+        <string>Output Folder:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <layout class="QHBoxLayout" name="outputFolderLayout">
+       <item>
+        <widget class="QLineEdit" name="outputFolderLine"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnOutputFolder">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+
+    </layout>
+   </item>
+
+   <!-- Button to Expand/Collapse Advanced Options -->
+   <item>
+    <widget class="QPushButton" name="btnToggleAdvancedOptions">
+     <property name="text">
+      <string>Show Advanced Options</string>
+     </property>
+    </widget>
+   </item>
+
+   <!-- Advanced Options (Initially Hidden) -->
+   <item>
+    <widget class="QGroupBox" name="advancedOptionsGroup">
+     <property name="title">
+      <string>Advanced Options</string>
+     </property>
+     <layout class="QFormLayout" name="advancedOptionsLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelHeight">
+        <property name="text">
+         <string>Height:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="heightLine"/>
+      </item>
+
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelSensorWidth">
+        <property name="text">
+         <string>Sensor Width:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="sensorWidthLine"/>
+      </item>
+
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelSensorHeight">
+        <property name="text">
+         <string>Sensor Height:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="sensorHeightLine"/>
+      </item>
+
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelGimbalPitch">
+        <property name="text">
+         <string>Gimbal Pitch (degrees):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="gimbalPitchLine"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- Run Button -->
+   <item>
+    <widget class="QPushButton" name="runButton">
+     <property name="text">
+      <string>Run</string>
+     </property>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+</ui>

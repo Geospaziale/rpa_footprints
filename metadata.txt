@@ -1,0 +1,19 @@
+[general]
+name=RPA_Footprints
+qgisMinimumVersion=3.0
+description=Plugin to estimate drone (RPA) image footprints using EXIF data
+version=0.1
+author=Harrison Dalton
+email=harrisonsdalton@gmail.com
+
+about=QGIS plugin for estimating Remotely Piloted Aircraft (RPA) image footprints using image EXIF metadata. It extracts the required metadata from the EXIF tags of each image in a folder using the Phil Harvey EXIF tool and then uses that to estimate image footprints. The resulting footprints are geojson polygons representing the approximate location on the ground that each image covers.
+
+tracker=https://github.com/Geospaziale/rpa_footprints
+repository=https://github.com/Geospaziale/rpa_footprints
+# End of mandatory metadata
+
+homepage=
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=False
