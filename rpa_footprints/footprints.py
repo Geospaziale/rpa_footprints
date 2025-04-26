@@ -119,24 +119,35 @@ def dms_to_decimal(dms_str: str):
             decimal = -decimal
         return decimal
 
+# Simple function to calculate GSD in cm
+def calculate_gsd(height: float, pitch: float, focal_length: float, sens_dim: list, img_dim: list):
+    ONA = math.radians(float(90 + pitch)) # off-nadir angle in radians
+    distance = height / math.cos(ONA)
+    gsd = round(100*(distance * sens_dim[0]) / (focal_length * img_dim[0]),3)
+    if gsd > 9999 or gsd <= 0:
+        gsd = 'NA' # set large gsd's to infinity (when sampling the horizon at high off-nadir angles)
+    return gsd
+
 # Function to extract the approx footprint of an image
 ''' this function will freak out if it samples the horizon (e.g. at high oblique angles) since it assumes a flat earth '''
-def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, yaw: float, focal_length: float, sens_dim: list, img_dim: list):
+def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, yaw: float, focal_length: float, sens_dim: list, img_dim: list, return_utm:bool = False):
     '''
     Description:
         - Estimates the footprint coordinates of a drone image based on drone image and sensor metadata.
     Parameters:
         - lat : latitude in decimal degrees
         - lon : longitude in decimal degrees
-        - pitch : gimbal pitch in degrees (-90 is straight down)
+        - pitch : gimbal pitch in degrees (90 is straight down)
         - yaw : yaw of the sensor with respect to north (e.g. yaw = 0 means camera is facing grid north)
         - focal_length : focal length of the sensor in millimetres
         - sens_dim : list of the sensor dimensions in width and height e.g. sens_dim = [35.9, 24] < 35.9mm x 24mm (Zenmuse P1)
         - img_dim : list of the image dimensions in pixels e.g. img_dim = [4000, 2250]
+    Optionals:
+        - return_utm : returns in the coordinates in UTM rather than latitude and longitude (e.g. for plotting). NOTE that it returns in eastings and northings this way (e.g. x,y) rather than lat (y), lon (x)
     Output:
         - coords: list of lists
-        Output is in the following format in lat, lon:
-        [[BLx, BLy], [TLx, TLy], [TRx, TRy], [BRx, BRy]]
+        Output is in the following format in lat (y), lon (x):
+        [[BLy, BLx], [TLy, TLx], [TRy, TRx], [BRy, BRx]]
         where BL is bottom left, TR is top right, etc.
     '''
     
@@ -145,7 +156,7 @@ def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, ya
     CamX, CamY = utm_output[0], utm_output[1]  # Camera coords in projected CRS
     zone, utm_letter = utm_output[2], utm_output[3]
     A = height  # the height AGL (m)
-    pitch = math.radians(pitch)  # pitch in radians
+    pitch = math.radians(-pitch)  # pitch in radians
     if pitch == 0:
         pitch = 1  # to deal with camera pointing directly at the horizon (0)
     dir = math.radians(yaw)  # the azimuth in radians
@@ -210,13 +221,20 @@ def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, ya
     coords_lat = [utm.to_latlon(x, y, zone, utm_letter)[0] for x, y in zip(coords_x, coords_y)]
     coords_lon = [utm.to_latlon(x, y, zone, utm_letter)[1] for x, y in zip(coords_x, coords_y)]
     
-    # Create the final coordinates (BL, TL, TR, BR order)
-    coords = [[coords_lat[1], coords_lon[1]], 
-              [coords_lat[2], coords_lon[2]], 
-              [coords_lat[3], coords_lon[3]], 
-              [coords_lat[0], coords_lon[0]]]
-    
+    # Create the final coordinates list (BL, TL, TR, BR order)
+    if not return_utm: # return in geographic by default
+        coords = [[coords_lat[1], coords_lon[1]], 
+                [coords_lat[2], coords_lon[2]], 
+                [coords_lat[3], coords_lon[3]], 
+                [coords_lat[0], coords_lon[0]]]
+    else: # return projected UTM coords if return_utm == True
+        coords = [[coords_x[1], coords_y[1]], 
+                [coords_x[2], coords_y[2]], 
+                [coords_x[3], coords_y[3]], 
+                [coords_x[0], coords_y[0]]]
+        
     return coords
+
 
 # Function to convert coords of footprint to a geojson
 '''
@@ -254,7 +272,13 @@ def merge_geojsons(geojson_list: list, output_geojson_path: str):
         geojson.dump(feature_collection, outfile, indent=2)
 
 # Main function to generate footprints for an input folder
-def generate_footprints(input_folder: str, output_folder: str, height: float = None, pitch: float = None, sens_dim: list = None, keep_only_merged = True):
+def generate_footprints(input_folder: str, 
+                        output_folder: str, 
+                        height: float = None, 
+                        pitch: float = None, 
+                        sens_dim: list = None, 
+                        keep_only_merged:bool = True,
+                        progress_bar = None):
     
     # Find all folders in the input folder with images
     folders_list = []
@@ -271,8 +295,10 @@ def generate_footprints(input_folder: str, output_folder: str, height: float = N
                         break
                 if img_found:
                     folders_list.append(dirpath)
+    total = len(folders_list) # total number of folders to process
     
     # Loop through each folder an extract footprints
+    count = 0 # initialise a count for updating the progress bar
     for folder_path in folders_list:
         folder_name = os.path.basename(folder_path)
         
@@ -393,14 +419,7 @@ def generate_footprints(input_folder: str, output_folder: str, height: float = N
             except:
                 speed = 'NA'
             # Ground sample distance (cm)
-            try:
-                ONA = math.radians(float(90 + pitch)) # off-nadir angle in radians
-                distance = height / math.cos(ONA)
-                gsd = round(100*(distance * sens_dim[0]) / (focal_length * img_dim[0]),3)
-                if gsd > 9999 or gsd <= 0:
-                    gsd = 9999 # set large gsd's to infinity (when sampling the horizon at high off-nadir angles)
-            except:
-                gsd = 'NA'
+            gsd = calculate_gsd(height, pitch, focal_length, sens_dim, img_dim)
 
             # Create a dictionary with all the required metadata
             metadata = {'File Path': file_path, 'Datetime - local': datetime_local_str, 'Datetime - UTC': datetime_utc_str, 'Latitude': lat, 'Longitude': lon, 'UTM Easting': utm_easting, 
@@ -413,13 +432,16 @@ def generate_footprints(input_folder: str, output_folder: str, height: float = N
             footprints_list.append(geojson_path)
 
         # Merged footprints in each folder into a single geojson
-        output_merged_geojson = os.path.join(os.path.dirname(geojson_path), folder_name + '_footprints_merged.geojson')
-        merge_geojsons(footprints_list, output_merged_geojson)
-    
-    # Option to delete the individual footprints if option is selected
-    if keep_only_merged:
-        for root, dirs, files in os.walk(output_folder):
-            for file in files:
-                if '_footprint.geojson' in file:
-                    file_path = os.path.join(root, file)
-                    os.remove(file_path)
+        if keep_only_merged: 
+            output_merged_geojson = os.path.join(os.path.dirname(geojson_path), folder_name + '_footprints_merged.geojson')
+            merge_geojsons(footprints_list, output_merged_geojson)
+            for root, dirs, files in os.walk(output_folder):
+                        for file in files:
+                            if '_footprint.geojson' in file:
+                                file_path = os.path.join(root, file)
+                                os.remove(file_path)
+        
+        # Update the progress bar if one is inputted
+        count += 1
+        if progress_bar:
+            progress_bar.setProperty("value", 100* count / total)

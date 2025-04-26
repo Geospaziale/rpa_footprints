@@ -1,135 +1,538 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MyPluginDialog</class>
- <widget class="QDialog" name="MyPluginDialog">
+ <class>RPA_Footprints</class>
+ <widget class="QDialog" name="RPA_Footprints">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>488</width>
+    <height>535</height>
+   </rect>
+  </property>
   <property name="windowTitle">
-   <string>My Plugin</string>
+   <string>RPA Footprints</string>
   </property>
   <layout class="QVBoxLayout" name="mainLayout">
-
-   <!-- Input Folder -->
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelInputFolder">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_generate_footprints">
+      <attribute name="title">
+       <string>Generate Footprints</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>14</x>
+         <y>10</y>
+         <width>431</width>
+         <height>58</height>
+        </rect>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="1" column="1">
+         <layout class="QHBoxLayout" name="outputFolderLayout">
+          <item>
+           <widget class="QLineEdit" name="outputFolderLine"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnOutputFolder">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="inputFolderLayout">
+          <item>
+           <widget class="QLineEdit" name="inputFolderLine"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnInputFolder">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelOutputFolder">
+          <property name="text">
+           <string>Output Folder:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelInputFolder">
+          <property name="text">
+           <string>Input Folder:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPushButton" name="btnToggleAdvancedOptions">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>70</y>
+         <width>431</width>
+         <height>23</height>
+        </rect>
+       </property>
        <property name="text">
-        <string>Input Folder:</string>
+        <string>Show Advanced Options</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="inputFolderLayout">
-       <item>
-        <widget class="QLineEdit" name="inputFolderLine"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnInputFolder">
-         <property name="text">
-          <string>Browse...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-
-     <!-- Output Folder -->
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelOutputFolder">
-       <property name="text">
-        <string>Output Folder:</string>
+      <widget class="QGroupBox" name="advancedOptionsGroup">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>431</width>
+         <height>131</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Advanced Options</string>
+       </property>
+       <layout class="QFormLayout" name="advancedOptionsLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelHeight">
+          <property name="text">
+           <string>Height:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="heightLine"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelSensorWidth">
+          <property name="text">
+           <string>Sensor Width:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="sensorWidthLine"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelSensorHeight">
+          <property name="text">
+           <string>Sensor Height:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="sensorHeightLine"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="labelGimbalPitch">
+          <property name="text">
+           <string>Gimbal Pitch (degrees):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="gimbalPitchLine"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QProgressBar" name="progressBar">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>270</y>
+         <width>421</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="value">
+        <number>0</number>
        </property>
       </widget>
-     </item>
-     <item row="1" column="1">
-      <layout class="QHBoxLayout" name="outputFolderLayout">
-       <item>
-        <widget class="QLineEdit" name="outputFolderLine"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnOutputFolder">
-         <property name="text">
-          <string>Browse...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-
-    </layout>
-   </item>
-
-   <!-- Button to Expand/Collapse Advanced Options -->
-   <item>
-    <widget class="QPushButton" name="btnToggleAdvancedOptions">
-     <property name="text">
-      <string>Show Advanced Options</string>
-     </property>
+      <widget class="QPushButton" name="runButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>300</y>
+         <width>421</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Run</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkbox_merge">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>240</y>
+         <width>151</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Merge footprints</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_visualise">
+      <attribute name="title">
+       <string>Visualise</string>
+      </attribute>
+      <widget class="QGroupBox" name="group_parameters">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>441</width>
+         <height>141</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Parameters</string>
+       </property>
+       <widget class="QSlider" name="height_slider">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>20</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>200</number>
+        </property>
+        <property name="value">
+         <number>50</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QLabel" name="height_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Height (m): 50</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="pitch_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>71</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Pitch (°): -90</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="yaw_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>71</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Yaw (°): 0</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="focal_length_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>131</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Focal length (mm): 35</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="sensor_width_label">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>20</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Sensor width (mm)</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="sensor_height_label">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>40</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Sensor height (mm)</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="image_height_label">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>80</y>
+          <width>91</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Image height (px)</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="image_width_label">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>60</y>
+          <width>91</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Image width (px)</string>
+        </property>
+       </widget>
+       <widget class="QSlider" name="pitch_slider">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>40</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>-90</number>
+        </property>
+        <property name="maximum">
+         <number>-1</number>
+        </property>
+        <property name="value">
+         <number>-90</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QSlider" name="yaw_slider">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>60</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="maximum">
+         <number>360</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QSlider" name="focallength_slider">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>80</y>
+          <width>71</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>1500</number>
+        </property>
+        <property name="pageStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>350</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="sensor_width">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>20</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>35.9</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="sensor_height">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>40</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>24</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="image_width">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>60</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>8192</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="image_height">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>80</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>5460</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="gsd_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>110</y>
+          <width>151</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Approx GSD = </string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="group_plot">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>160</y>
+         <width>401</width>
+         <height>301</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Plot</string>
+       </property>
+       <layout class="QVBoxLayout" name="plotlayout">
+        <item>
+         <widget class="QWidget" name="plotWidget" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_about">
+      <attribute name="title">
+       <string>About</string>
+      </attribute>
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>421</width>
+         <height>461</height>
+        </rect>
+       </property>
+       <property name="html">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;What is a 'footprint'?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A footprint is a polygon representing the approximate area on the ground visible in a drone image. Drone images only store the GPS location that the photo was taken from, so footprints have to be estimated from other metadata contained in the images.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;How it works&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This plugin estimates the footprints using several bits of metadata contained in the image EXIF tags:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Image location (latitude and longitude)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Height above ground level (m)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Gimbal pitch (-90&lt;/span&gt;&lt;span style=&quot; font-family:'Google Sans','Arial','sans-serif'; font-size:8pt; color:#1f1f1f; background-color:#ffffff;&quot;&gt;° &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;means camera is pointing straight down - nadir)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Gimbal yaw (direction the sensor is facing with respect to North)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Focal length of sensor&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Sensor dimensions&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- Image dimensions&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Everything except the sensor dimensions can typically be extracted programtically from the EXIF data. Sensor dimensions (width and height) are typically not contained in the EXIF data, so there is a option to manually specify these in case the have not been included in the plugin's backend.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The plugin will generate footprints for all images in the input folder (including subfolders) and will export footprints in geojson format.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Resources&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- The math used in this plugin is based off the &lt;/span&gt;&lt;a href=&quot;https://gis.stackexchange.com/questions/384756/georeference-single-drone-image-from-exif-data&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;forum post&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; by Houska on GIS StackExchange&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;- A more sophisticated Python repositry for georefencing individual drone images developed by spifftek70 is available on GitHub: &lt;/span&gt;&lt;a href=&quot;https://github.com/spifftek70/Drone-Footprints&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Drone-Footprints&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </item>
-
-   <!-- Advanced Options (Initially Hidden) -->
-   <item>
-    <widget class="QGroupBox" name="advancedOptionsGroup">
-     <property name="title">
-      <string>Advanced Options</string>
-     </property>
-     <layout class="QFormLayout" name="advancedOptionsLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelHeight">
-        <property name="text">
-         <string>Height:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="heightLine"/>
-      </item>
-
-      <item row="1" column="0">
-       <widget class="QLabel" name="labelSensorWidth">
-        <property name="text">
-         <string>Sensor Width:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="sensorWidthLine"/>
-      </item>
-
-      <item row="2" column="0">
-       <widget class="QLabel" name="labelSensorHeight">
-        <property name="text">
-         <string>Sensor Height:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="sensorHeightLine"/>
-      </item>
-
-      <item row="3" column="0">
-       <widget class="QLabel" name="labelGimbalPitch">
-        <property name="text">
-         <string>Gimbal Pitch (degrees):</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="gimbalPitchLine"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-
-   <!-- Run Button -->
-   <item>
-    <widget class="QPushButton" name="runButton">
-     <property name="text">
-      <string>Run</string>
-     </property>
-    </widget>
-   </item>
-
   </layout>
  </widget>
+ <resources/>
+ <connections/>
 </ui>

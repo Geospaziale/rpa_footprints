@@ -1,7 +1,10 @@
 from qgis.PyQt.QtWidgets import QFileDialog, QDialog, QMessageBox
-from .plugin_dialog_base import Ui_MyPluginDialog
+from .plugin_dialog_base import Ui_RPA_Footprints
+from .rpa_footprints import footprints
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
+from matplotlib.figure import Figure
 
-class MyPluginDialog(QDialog, Ui_MyPluginDialog):
+class MyPluginDialog(QDialog, Ui_RPA_Footprints):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -15,7 +18,25 @@ class MyPluginDialog(QDialog, Ui_MyPluginDialog):
         # Connect the browse buttons to their respective folder selectors
         self.btnInputFolder.clicked.connect(self.select_input_folder)
         self.btnOutputFolder.clicked.connect(self.select_output_folder)
-        self.runButton.clicked.connect(self.run_plugin)
+        self.runButton.clicked.connect(self.generate_footprints)
+
+        # Track the values in the visualise tab as they are changed
+        self.height_slider.valueChanged.connect(self.update_footprint_plot)
+        self.pitch_slider.valueChanged.connect(self.update_footprint_plot)
+        self.yaw_slider.valueChanged.connect(self.update_footprint_plot)
+        self.focallength_slider.valueChanged.connect(self.update_footprint_plot)
+        self.sensor_width.textChanged.connect(self.update_footprint_plot)
+        self.sensor_height.textChanged.connect(self.update_footprint_plot)
+        self.image_width.textChanged.connect(self.update_footprint_plot)
+        self.image_height.textChanged.connect(self.update_footprint_plot)
+
+        # Setup the plot
+        self.canvas = Canvas(Figure(figsize=(4, 4)))
+        self.plotlayout.addWidget(self.canvas)
+        self.ax = self.canvas.figure.add_subplot(111)
+
+        self.update_footprint_plot()
+
 
     def toggle_advanced_options(self):
         """ Toggle visibility of advanced options """
@@ -39,8 +60,85 @@ class MyPluginDialog(QDialog, Ui_MyPluginDialog):
         if folder:
             self.outputFolderLine.setText(folder)
 
-    def run_plugin(self):
+    def update_footprint_plot(self):
+        
+        # Extract parameters from input values
+        lat = -35 # default value for the plot
+        lon = 149 # default value for the plot
+        height = self.height_slider.value()
+        self.height_label.setText(f"Height (m): {height}")
+        pitch = self.pitch_slider.value()
+        self.pitch_label.setText(f"Pitch (°): {pitch}")
+        yaw = self.yaw_slider.value()
+        self.yaw_label.setText(f"Yaw (°): {yaw}")
+        focal_length = self.focallength_slider.value()/10
+        self.focal_length_label.setText(f"Focal length (mm): {focal_length}")
+        sens_width = self.sensor_width.text()
+        sens_height = self.sensor_height.text()
+        img_width = self.image_width.text()
+        img_height = self.image_height.text()
+        if sens_width:
+            try:
+                sens_width = float(self.sensor_width.text())
+            except:
+                QMessageBox.information(self, "Invalid parameter", f"Sensor width must be a number")
+        if sens_height:
+            try:
+                sens_height = float(self.sensor_height.text())
+            except:
+                QMessageBox.information(self, "Invalid parameter", f"Sensor height must be a number")
+        if img_width:
+            try:
+                img_width = int(self.image_width.text())
+            except:
+                QMessageBox.information(self, "Invalid parameter", f"Image width must be a number")
+        if img_height:
+            try:
+                img_height = int(self.image_height.text())
+            except:
+                QMessageBox.information(self, "Invalid parameter", f"Image height must be a number")
+        try:
+            gsd = footprints.calculate_gsd(height, pitch, focal_length, [sens_width, sens_height], [img_width, img_height])
+        except:
+            gsd = 'NA'
+        self.gsd_label.setText(f"Approx GSD = {gsd}")
+
+        # Extract the footprints coords in UTM
+        try:
+            coords = footprints.img_footprint_coords(lat, 
+                                                 lon, 
+                                                 height, 
+                                                 pitch, 
+                                                 yaw, 
+                                                 focal_length, 
+                                                 [sens_width, sens_height], 
+                                                 [img_width, img_height], 
+                                                 return_utm = True)
+        except:
+            coords = None
+
+        # Produce the plot
+        self.ax.clear()
+        self.ax.set_title("Image footprint")
+        try:
+            x = [coords[0][0], coords[1][0], coords[2][0], coords[3][0], coords[0][0]]
+            y = [coords[0][1], coords[1][1], coords[2][1], coords[3][1], coords[0][1]]
+            # normalise coords by the min x and min y
+            x_norm = [value - min(x) for value in x]
+            y_norm = [value - min(y) for value in y]
+            self.ax.fill(x_norm, y_norm, color='blue', alpha=0.4)
+            self.ax.axis('equal')
+            #self.ax.set_xlabel("Distance (m)")
+            #self.ax.set_ylabel("Distance (m)")
+        except:
+            self.ax.text(0.1, 0.5, "Error in footprint calculation", fontsize=12)
+        self.canvas.draw()
+
+    def generate_footprints(self):
         """ Run the plugin after user inputs are validated """
+        # Initialise progress bar as 0%
+        self.progressBar.setProperty("value", 0)
+        
         # Get the input values from the UI fields
         input_folder = self.inputFolderLine.text()
         output_folder = self.outputFolderLine.text()
@@ -67,13 +165,13 @@ class MyPluginDialog(QDialog, Ui_MyPluginDialog):
                 raise ValueError(f"Selected pitch of '{pitch}' is invalid. The input gimbal pitch must be between 0 and -90 degrees.")
         
         # Generate footprints for the input folder
-        from .rpa_footprints import footprints
         footprints.generate_footprints(input_folder=input_folder, 
                                        output_folder=output_folder, 
                                        height=height, 
                                        pitch=pitch, 
                                        sens_dim=sens_dim, 
-                                       keep_only_merged=True)
+                                       keep_only_merged=self.checkbox_merge.isChecked(),
+                                       progress_bar=self.progressBar)
 
         # Here, you would add the logic to process the data based on the input fields
         # For now, let's just simulate processing with a success message
