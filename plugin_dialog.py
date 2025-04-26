@@ -3,6 +3,8 @@ from .plugin_dialog_base import Ui_RPA_Footprints
 from .rpa_footprints import footprints
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 class MyPluginDialog(QDialog, Ui_RPA_Footprints):
     def __init__(self):
@@ -30,10 +32,15 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
         self.image_width.textChanged.connect(self.update_footprint_plot)
         self.image_height.textChanged.connect(self.update_footprint_plot)
 
-        # Setup the plot
+        # Setup the plots
+        # 2D
         self.canvas = Canvas(Figure(figsize=(4, 4)))
         self.plotlayout.addWidget(self.canvas)
         self.ax = self.canvas.figure.add_subplot(111)
+        #3D 
+        self.canvas_3d = Canvas(Figure(figsize=(4, 4)))
+        self.plotlayout_3d.addWidget(self.canvas_3d)
+        self.ax_3d = self.canvas_3d.figure.add_subplot(111, projection = '3d')
 
         self.update_footprint_plot()
 
@@ -63,8 +70,8 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
     def update_footprint_plot(self):
         
         # Extract parameters from input values
-        lat = -35 # default value for the plot
-        lon = 149 # default value for the plot
+        lat, lon = -35, 149 # default img location values for the plot
+        easting, northing = 682516.0936188, 6125129.365233506 # corresponding projected coords for the img location
         height = self.height_slider.value()
         self.height_label.setText(f"Height (m): {height}")
         pitch = self.pitch_slider.value()
@@ -101,7 +108,7 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
             gsd = footprints.calculate_gsd(height, pitch, focal_length, [sens_width, sens_height], [img_width, img_height])
         except:
             gsd = 'NA'
-        self.gsd_label.setText(f"Approx GSD = {gsd}")
+        self.gsd_label.setText(f"GSD (cm) = {gsd}")
 
         # Extract the footprints coords in UTM
         try:
@@ -116,16 +123,25 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
                                                  return_utm = True)
         except:
             coords = None
+        # Calculate area of footprint
+        try:
+            area = round(footprints.polygon_area(coords),2)
+        except:
+            area = 'NA'
+        self.area_label.setText(f"Area (m²) = {area}")
 
-        # Produce the plot
+
+        # Update the 2D plot
         self.ax.clear()
         self.ax.set_title("Image footprint")
         try:
             x = [coords[0][0], coords[1][0], coords[2][0], coords[3][0], coords[0][0]]
             y = [coords[0][1], coords[1][1], coords[2][1], coords[3][1], coords[0][1]]
             # normalise coords by the min x and min y
-            x_norm = [value - min(x) for value in x]
-            y_norm = [value - min(y) for value in y]
+            x_min, y_min = min(x), min(y)
+            x_norm = [value - x_min for value in x]
+            y_norm = [value - y_min for value in y]
+            img_x_norm, img_y_norm = easting - x_min, northing - y_min
             self.ax.fill(x_norm, y_norm, color='blue', alpha=0.4)
             self.ax.axis('equal')
             #self.ax.set_xlabel("Distance (m)")
@@ -133,6 +149,28 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
         except:
             self.ax.text(0.1, 0.5, "Error in footprint calculation", fontsize=12)
         self.canvas.draw()
+
+        # Update the 3D plot
+        self.ax_3d.clear()
+        self.ax_3d.set_title("Image footprint")
+        try:
+            # Plot the image footprint at z = 0
+            vertices = [list(zip(x_norm[:4], y_norm[:4], [0,0,0,0]))]
+            poly = Poly3DCollection(vertices, color='blue', alpha=0.5, linewidths=2, edgecolors='r')
+            self.ax_3d.add_collection3d(poly) # add filled footprint to plot
+            self.ax_3d.scatter(img_x_norm, img_y_norm, height, c='red', marker='x', s=100) # image location at z = height
+            # Plot lines from img location to each footprint corner
+            for cx, cy, cz in vertices[0]: # cx = corner x coord etc
+                self.ax_3d.plot([img_x_norm, cx], [img_y_norm, cy], [height, cz], color='black', linewidth=2)
+            self.ax_3d.set_xlabel("X")
+            self.ax_3d.set_ylabel("Y")
+            self.ax_3d.set_zlabel("Z")
+            self.ax_3d.view_init(elev=30, azim=45)
+            self.canvas_3d.draw()
+        except:
+            self.ax_3d.text(0, 0, 0, "Error in footprint calculation", fontsize=12)
+        self.canvas_3d.draw()
+
 
     def generate_footprints(self):
         """ Run the plugin after user inputs are validated """

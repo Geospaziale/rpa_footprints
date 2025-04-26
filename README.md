@@ -38,7 +38,9 @@ The footprints are exported to geojson files in the output folder, with each foo
 
 ### Visualise 
 
-For fun, you can use the temporal controller in QGIS to visualise how the images were collected in real time.
+The plugin allows you to play around with the different parameters that influence the footprint shapes, and updates it in real time with 2D and 3D plots. This is a good way to visually grasp how the area sampled by a drone image differs based upon the drone location, gimbal orientation and sensor specifications.
+
+![](images/visualisation.png)
 
 ---
 

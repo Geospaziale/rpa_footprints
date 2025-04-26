@@ -28,6 +28,7 @@ import utm
 from datetime import datetime
 from shapely.geometry import Polygon, mapping
 from timezonefinder import TimezoneFinder
+from mpl_toolkits.mplot3d import Axes3D
 
 # Permissable image extensions for footprint generation
 img_extensions = ['jpg', 'jpeg', 'tif', 'tiff', 'iiq']
@@ -235,6 +236,16 @@ def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, ya
         
     return coords
 
+# Calculate the area of a footprint (coords must be in utm projected)
+def polygon_area(coords: list):
+    n = len(coords)
+    area = 0
+    # Loop through the coords
+    for i in range(n):
+        x1, y1 = coords[i]
+        x2, y2 = coords[(i + 1) % n]  # wrap around
+        area += (x1 * y2) - (x2 * y1)
+    return abs(area) / 2
 
 # Function to convert coords of footprint to a geojson
 '''
