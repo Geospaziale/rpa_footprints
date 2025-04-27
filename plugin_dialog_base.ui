@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_generate_footprints">
       <attribute name="title">
@@ -188,9 +188,102 @@
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Plot</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>421</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QFormLayout" name="plotformlayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_inputgeojson">
+          <property name="text">
+           <string>Input GeoJSON:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="inputFolderLayout_2">
+          <item>
+           <widget class="QLineEdit" name="input_geojsonLine"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btninput_geojson">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPushButton" name="btnplot3danimation">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>161</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Plot 3D Animation</string>
+       </property>
+      </widget>
+      <widget class="QTabWidget" name="tabWidget_plot3d">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>441</width>
+         <height>391</height>
+        </rect>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tab_3d_2">
+        <attribute name="title">
+         <string>3D</string>
+        </attribute>
+        <widget class="QWidget" name="plotWidget" native="true">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>431</width>
+           <height>361</height>
+          </rect>
+         </property>
+         <widget class="QGroupBox" name="group_plot">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>431</width>
+            <height>361</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QVBoxLayout" name="plotlayout_3d_2"/>
+         </widget>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
      <widget class="QWidget" name="tab_visualise">
       <attribute name="title">
-       <string>Visualise</string>
+       <string>Simulator</string>
       </attribute>
       <widget class="QGroupBox" name="group_parameters">
        <property name="geometry">
@@ -496,35 +589,6 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="tab_2d">
-        <attribute name="title">
-         <string>2D</string>
-        </attribute>
-        <widget class="QWidget" name="plotWidget" native="true">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>-1</y>
-           <width>431</width>
-           <height>291</height>
-          </rect>
-         </property>
-         <widget class="QGroupBox" name="group_plot">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>431</width>
-            <height>291</height>
-           </rect>
-          </property>
-          <property name="title">
-           <string/>
-          </property>
-          <layout class="QVBoxLayout" name="plotlayout"/>
-         </widget>
-        </widget>
-       </widget>
        <widget class="QWidget" name="tab_3d">
         <attribute name="title">
          <string>3D</string>

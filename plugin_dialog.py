@@ -5,6 +5,11 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
+import json
+import os
+import numpy as np
 
 class MyPluginDialog(QDialog, Ui_RPA_Footprints):
     def __init__(self):
@@ -21,6 +26,8 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
         self.btnInputFolder.clicked.connect(self.select_input_folder)
         self.btnOutputFolder.clicked.connect(self.select_output_folder)
         self.runButton.clicked.connect(self.generate_footprints)
+        self.btninput_geojson.clicked.connect(self.select_input_geojson)
+        self.btnplot3danimation.clicked.connect(self.plot_geojson_footprints)
 
         # Track the values in the visualise tab as they are changed
         self.height_slider.valueChanged.connect(self.update_footprint_plot)
@@ -32,16 +39,21 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
         self.image_width.textChanged.connect(self.update_footprint_plot)
         self.image_height.textChanged.connect(self.update_footprint_plot)
 
-        # Setup the plots
-        # 2D
-        self.canvas = Canvas(Figure(figsize=(4, 4)))
-        self.plotlayout.addWidget(self.canvas)
-        self.ax = self.canvas.figure.add_subplot(111)
+        # setup the geojson 3D plot
+        self.plot_3d_fig = plt.figure()
+        self.plot_3d = Canvas(self.plot_3d_fig)
+        self.plotlayout_3d_2.addWidget(self.plot_3d)
+        self.plot_ax_3d = self.plot_3d.figure.add_subplot(111, projection = '3d')
+        self.plot_ax_3d.set_xlabel("X")
+        self.plot_ax_3d.set_ylabel("Y")
+        self.plot_ax_3d.set_zlabel("Z")
+        self.plot_ax_3d.view_init(elev=30, azim=45)
+
+        # Setup the simuluation plot
         #3D 
         self.canvas_3d = Canvas(Figure(figsize=(4, 4)))
         self.plotlayout_3d.addWidget(self.canvas_3d)
         self.ax_3d = self.canvas_3d.figure.add_subplot(111, projection = '3d')
-
         self.update_footprint_plot()
 
 
@@ -66,6 +78,14 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
         folder = QFileDialog.getExistingDirectory(self, "Select Output Folder")
         if folder:
             self.outputFolderLine.setText(folder)
+
+    def select_input_geojson(self):
+        """ Open file dialog to select input geojson """
+        options = QFileDialog.Options()
+        filter = "GeoJSON Files (*.geojson)"
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open GeoJSON File", "", filter, options=options)
+        if file_name:
+            self.input_geojsonLine.setText(file_name)
 
     def update_footprint_plot(self):
         
@@ -120,40 +140,30 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
                                                  focal_length, 
                                                  [sens_width, sens_height], 
                                                  [img_width, img_height], 
-                                                 return_utm = True)
+                                                 return_all = True)
+            coords_utm = coords['projected']
         except:
-            coords = None
+            coords_utm = None
+        
         # Calculate area of footprint
         try:
-            area = round(footprints.polygon_area(coords),2)
+            area = round(footprints.polygon_area(coords_utm),2)
         except:
             area = 'NA'
         self.area_label.setText(f"Area (m²) = {area}")
-
-
-        # Update the 2D plot
-        self.ax.clear()
-        self.ax.set_title("Image footprint")
-        try:
-            x = [coords[0][0], coords[1][0], coords[2][0], coords[3][0], coords[0][0]]
-            y = [coords[0][1], coords[1][1], coords[2][1], coords[3][1], coords[0][1]]
-            # normalise coords by the min x and min y
-            x_min, y_min = min(x), min(y)
-            x_norm = [value - x_min for value in x]
-            y_norm = [value - y_min for value in y]
-            img_x_norm, img_y_norm = easting - x_min, northing - y_min
-            self.ax.fill(x_norm, y_norm, color='blue', alpha=0.4)
-            self.ax.axis('equal')
-            #self.ax.set_xlabel("Distance (m)")
-            #self.ax.set_ylabel("Distance (m)")
-        except:
-            self.ax.text(0.1, 0.5, "Error in footprint calculation", fontsize=12)
-        self.canvas.draw()
 
         # Update the 3D plot
         self.ax_3d.clear()
         self.ax_3d.set_title("Image footprint")
         try:
+            # Extract the x and y coords seperately
+            x = [coords_utm[0][0], coords_utm[1][0], coords_utm[2][0], coords_utm[3][0], coords_utm[0][0]]
+            y = [coords_utm[0][1], coords_utm[1][1], coords_utm[2][1], coords_utm[3][1], coords_utm[0][1]]
+            # normalise coords by the min x and min y
+            x_min, y_min = min(x), min(y)
+            x_norm = [value - x_min for value in x]
+            y_norm = [value - y_min for value in y]
+            img_x_norm, img_y_norm = easting - x_min, northing - y_min
             # Plot the image footprint at z = 0
             vertices = [list(zip(x_norm[:4], y_norm[:4], [0,0,0,0]))]
             poly = Poly3DCollection(vertices, color='blue', alpha=0.5, linewidths=2, edgecolors='r')
@@ -171,6 +181,92 @@ class MyPluginDialog(QDialog, Ui_RPA_Footprints):
             self.ax_3d.text(0, 0, 0, "Error in footprint calculation", fontsize=12)
         self.canvas_3d.draw()
 
+    def plot_geojson_footprints(self):
+        self.plot_ax_3d.clear()
+        
+        # Open the GeoJSON and read the features
+        file_path = self.input_geojsonLine.text()
+        if not file_path and not '.geojson' in file_path:
+            None
+        else:    
+            with open(file_path) as f:
+                gj = json.load(f)
+            features = gj['features']
+            total = len(features) # total amount of features (footprints)
+
+            # Loop through each feature extract the coords we need
+            all_footprint_coords = []
+            all_img_coords = []
+            all_line_coords = []
+            for feature in features:
+                properties = feature['properties']
+                coords_2d = properties['Coords_UTM']
+                coords_3d = [[x, y, 0] for x, y in coords_2d] # coords in 3D at Z = 0
+                img_x, img_y = properties['UTM Easting'], properties['UTM Northing'] # sensor location
+                height = properties['Height']
+                img_coords = [img_x, img_y, height]
+                lines = [] # build a list of the lines to each corner
+                for x,y,z in coords_3d:
+                    lines.append([[img_x, x], [img_y, y], [height, z]])
+                all_footprint_coords.append(coords_3d)
+                all_img_coords.append(img_coords)
+                all_line_coords.append(lines)
+
+            # Create an array of all coords and set axis limits based on them
+            all_footprint_coords_array = [np.array(footprint) for footprint in all_footprint_coords]
+
+            # Set axis limits based on all polygons and img locations
+            all_points = np.vstack(all_footprint_coords_array + all_img_coords)
+            self.plot_ax_3d.set_xlim(np.min(all_points[:, 0]) - 10, np.max(all_points[:, 0]) + 10)
+            self.plot_ax_3d.set_ylim(np.min(all_points[:, 1]) - 10, np.max(all_points[:, 1]) + 10)
+            self.plot_ax_3d.set_zlim(np.min(all_points[:, 2]) - 10, np.max(all_points[:, 2]) + 10)
+
+            # Store added collections so they persist
+            footprint_frames = []
+            img_pos_frames = []
+            line_frames = []
+            def init():
+                return []
+            def update(frame):
+                if frame < len(all_footprint_coords_array):
+                    # Remove previous footprints
+                    for footprint in footprint_frames:
+                        try:
+                            footprint.remove()
+                        except:
+                            None
+                    # Make previos img locations lighter
+                    for img_frame in img_pos_frames:
+                        img_frame.set_sizes([20])
+                        img_frame.set_alpha(0.4)
+                    # Make previous lines invisible
+                    for line_frame in line_frames:
+                        try:
+                            line_frame[0].remove()
+                        except:
+                            None
+                    
+                    # Extract the things to plot
+                    footprint = all_footprint_coords_array[frame]
+                    img_coords = all_img_coords[frame]
+                    lines_coords = all_line_coords[frame]
+                    # Plot the footprint 
+                    poly = Poly3DCollection([footprint], color='blue', alpha=0.5, linewidths=3, edgecolors = 'r')
+                    self.plot_ax_3d.add_collection3d(poly) # plot the footprint
+                    footprint_frames.append(poly)
+                    # Plot the sensor position (img_coords)
+                    img_plot = self.plot_ax_3d.scatter(img_coords[0], img_coords[1], img_coords[2], c='red', marker='x', s=60) # image location at z = height
+                    img_pos_frames.append(img_plot)
+                    # Plot the lines to the corner of each footprint
+                    for line in lines_coords:
+                        line_plot = self.plot_ax_3d.plot(line[0], line[1], line[2], color='black', linewidth=1)
+                        line_frames.append(line_plot)
+                    
+                return footprint_frames, line_frames, img_pos_frames
+
+            ani = FuncAnimation(self.plot_3d_fig, update, frames=total, init_func=init, blit=False, repeat=False)
+            self.plot_3d_fig.show()
+            self.plot_3d.draw()
 
     def generate_footprints(self):
         """ Run the plugin after user inputs are validated """

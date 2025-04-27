@@ -131,7 +131,7 @@ def calculate_gsd(height: float, pitch: float, focal_length: float, sens_dim: li
 
 # Function to extract the approx footprint of an image
 ''' this function will freak out if it samples the horizon (e.g. at high oblique angles) since it assumes a flat earth '''
-def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, yaw: float, focal_length: float, sens_dim: list, img_dim: list, return_utm:bool = False):
+def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, yaw: float, focal_length: float, sens_dim: list, img_dim: list, return_all:bool = True):
     '''
     Description:
         - Estimates the footprint coordinates of a drone image based on drone image and sensor metadata.
@@ -144,7 +144,7 @@ def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, ya
         - sens_dim : list of the sensor dimensions in width and height e.g. sens_dim = [35.9, 24] < 35.9mm x 24mm (Zenmuse P1)
         - img_dim : list of the image dimensions in pixels e.g. img_dim = [4000, 2250]
     Optionals:
-        - return_utm : returns in the coordinates in UTM rather than latitude and longitude (e.g. for plotting). NOTE that it returns in eastings and northings this way (e.g. x,y) rather than lat (y), lon (x)
+        - return_all : returns coordinates in both geographic and UTM rather as a dictionary. NOTE that it returns in eastings and northings in (x,y) format rather than lat (y), lon (x) for geographic
     Output:
         - coords: list of lists
         Output is in the following format in lat (y), lon (x):
@@ -222,19 +222,21 @@ def img_footprint_coords(lat: float, lon: float, height: float, pitch: float, ya
     coords_lat = [utm.to_latlon(x, y, zone, utm_letter)[0] for x, y in zip(coords_x, coords_y)]
     coords_lon = [utm.to_latlon(x, y, zone, utm_letter)[1] for x, y in zip(coords_x, coords_y)]
     
-    # Create the final coordinates list (BL, TL, TR, BR order)
-    if not return_utm: # return in geographic by default
-        coords = [[coords_lat[1], coords_lon[1]], 
+    # Coordinates in geographic format
+    coords = [[coords_lat[1], coords_lon[1]], 
                 [coords_lat[2], coords_lon[2]], 
                 [coords_lat[3], coords_lon[3]], 
                 [coords_lat[0], coords_lon[0]]]
-    else: # return projected UTM coords if return_utm == True
-        coords = [[coords_x[1], coords_y[1]], 
+    
+    # return geographic coords by default
+    if not return_all: 
+        return coords
+    else: # return both geographic and projected UTM coords if return_all == True
+        coords_utm = [[coords_x[1], coords_y[1]], 
                 [coords_x[2], coords_y[2]], 
                 [coords_x[3], coords_y[3]], 
                 [coords_x[0], coords_y[0]]]
-        
-    return coords
+        return {'geographic': coords, 'projected': coords_utm}
 
 # Calculate the area of a footprint (coords must be in utm projected)
 def polygon_area(coords: list):
@@ -432,14 +434,20 @@ def generate_footprints(input_folder: str,
             # Ground sample distance (cm)
             gsd = calculate_gsd(height, pitch, focal_length, sens_dim, img_dim)
 
-            # Create a dictionary with all the required metadata
+            # Generate footprints coords and calculate area
+            footprint_coords = img_footprint_coords(lat, lon, height, pitch, yaw, focal_length, sens_dim, img_dim, return_all=True)
+            coords_geo = footprint_coords['geographic']
+            coords_proj = footprint_coords['projected']
+            area = polygon_area(coords_proj)
+            
+            # Create a dictionary with all the required metadata to write to each GeoJSON
             metadata = {'File Path': file_path, 'Datetime - local': datetime_local_str, 'Datetime - UTC': datetime_utc_str, 'Latitude': lat, 'Longitude': lon, 'UTM Easting': utm_easting, 
-                        'UTM Northing': utm_northing,'UTM Zone': utm_zone, 'Sensor': model, 'Height': height, 'GSD': gsd, 'Speed': speed, 'Pitch': pitch, 'Yaw': yaw, 'Focal Length': focal_length, 'Sensor Dimensions': sens_dim, 'Image Dimensions': img_dim}
+                        'UTM Northing': utm_northing,'UTM Zone': utm_zone, 'Sensor': model, 'Height': height, 'GSD': gsd, 'Speed': speed, 'Pitch': pitch, 'Yaw': yaw, 'Focal Length': focal_length, 
+                        'Sensor Dimensions': sens_dim, 'Image Dimensions': img_dim, 'Image Area': area, 'Coords_UTM': coords_proj}
 
-            # Generate footprints coords and save to an individual geojson
-            coords = img_footprint_coords(lat, lon, height, pitch, yaw, focal_length, sens_dim, img_dim)
+            # Save footprint to an individual GeoJSON
             geojson_path = os.path.join(output_folder, rel_path.rsplit('.',1)[0] + '_footprint.geojson')
-            footprint_coords_to_geojson(coords, geojson_path, metadata)
+            footprint_coords_to_geojson(coords_geo, geojson_path, metadata)
             footprints_list.append(geojson_path)
 
         # Merged footprints in each folder into a single geojson
